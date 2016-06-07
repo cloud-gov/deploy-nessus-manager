@@ -1,4 +1,4 @@
-# cg-deploy-nessus-master
+# cg-deploy-nessus-manager
 
 This repository is responsible for the deployment of Nessus Manager for [cloud.gov](https://cloud.gov). It contains a concourse pipeline.
 
