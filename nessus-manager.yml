@@ -1,0 +1,111 @@
+name: nessus-manager-prod
+
+meta:
+  aws:
+    access_key_id: ~
+    secret_access_key: ~
+  collectd:
+    riemann_server: ~
+  environment: ~
+  nessus-manager:
+    license: ~
+    username: ~
+    password: ~
+  network:
+    range: ~
+    reserved: ~
+    static: ~
+    dns: ~
+    gateway: ~
+    subnet: ~
+    security_groups: ~
+  elbs: ~
+
+director_uuid: (( merge ))
+
+releases:
+- name: collectd
+  version: latest
+- name: fisma
+  version: latest
+- name: tripwire
+  version: latest
+- name: awslogs
+  version: latest
+- name: nessus-manager
+  version: latest
+- name: newrelic
+  version: latest
+
+networks:
+  - name: tooling
+    type: manual
+    subnets:
+      - range: (( meta.network.range ))
+        reserved: (( meta.network.reserved ))
+        gateway: (( meta.network.gateway ))
+        dns: (( meta.network.dns ))
+        static: (( meta.network.static ))
+        cloud_properties:
+          security_groups: (( meta.network.security_groups ))
+          subnet: (( meta.network.subnet ))
+
+jobs:
+- name: nessus-manager
+  templates:
+  - {name: collectd, release: collectd}
+  - {name: harden, release: fisma}
+  - {name: tripwire, release: tripwire}
+  - {name: awslogs, release: awslogs}
+  - {name: nessus-manager, release: nessus-manager}
+  - {name: newrelic-monitor, release: newrelic}
+  instances: 1
+  resource_pool: t2.medium
+  networks:
+  - name: tooling
+    static_ips: (( static_ips(1) ))
+
+properties:
+  env: nessus-manager
+  collectd:
+    hostname_prefix: (( meta.environment "." ))
+    riemann_server: (( meta.collectd.riemann_server ))
+  tripwire: ~
+  awslogs: ~
+  nessus-manager:
+    license: (( meta.nessus-manager.license ))
+    username: (( meta.nessus-manager.username ))
+    password: (( meta.nessus-manager.password ))
+  newrelic: ~
+
+resource_pools:
+- name: t2.medium
+  network: tooling
+  stemcell:
+    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+    version: latest
+  cloud_properties:
+    instance_type: t2.medium
+    elbs: (( meta.elbs ))
+    ephemeral_disk:
+      size: 30000
+      type: gp2
+    availability_zone: us-east-1b
+
+compilation:
+  network: tooling
+  reuse_compilation_vms: true
+  workers: 2
+  cloud_properties:
+    instance_type: t2.medium
+    ephemeral_disk:
+      size: 30000
+      type: gp2
+    availability_zone: us-east-1b
+
+update:
+  canaries: 1
+  canary_watch_time: 1000-300000
+  max_in_flight: 50
+  serial: false
+  update_watch_time: 1000-300000
