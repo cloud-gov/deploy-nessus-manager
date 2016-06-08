@@ -1,6 +1,7 @@
 name: nessus-manager-prod
 
 meta:
+  az: ~
   aws:
     access_key_id: ~
     secret_access_key: ~
