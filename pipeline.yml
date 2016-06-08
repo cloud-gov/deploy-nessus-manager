@@ -1,6 +1,5 @@
----
+groups: []
 jobs:
-
 - name: deploy-nessus-manager-production
   plan:
   - aggregate:
@@ -10,6 +9,10 @@ jobs:
     - get: common-prod
     - get: cg-s3-collectd-release
     - get: cg-s3-nessus-manager-release
+    - get: cg-s3-fisma-release
+    - get: cg-s3-tripwire-release
+    - get: cg-s3-awslogs-release
+    - get: cg-s3-newrelic-release
     - get: nessus-manager-stemcell
   - task: nessus-manager-manifest
     file: pipeline-tasks/spiff-merge.yml
@@ -28,6 +31,11 @@ jobs:
       manifest: spiff-merge/manifest.yml
       releases:
         - cg-s3-nessus-manager-release/nessus-manager*.tgz
+        - cg-s3-collectd-release/collectd*.tgz
+        - cg-s3-fisma-release/fisma*.tgz
+        - cg-s3-tripwire-release/tripwire*.tgz
+        - cg-s3-awslogs-release/awslogs*.tgz
+        - cg-s3-newrelic-release/newrelic*.tgz
       stemcells:
         - nessus-manager-stemcell/*.tgz
     on_failure:
@@ -59,7 +67,8 @@ resources:
     secret_access_key: {{nessus-manager-private-secret-access-key-staging}}
     secrets_file: nessus-manager-staging.yml
     secrets_passphrase: {{nessus-manager-staging-private-passphrase}}
-    bosh_cert: bosh.pem
+    bosh_cert: bosh-tooling.pem
+    region: {{aws-region}}
 
 - name: common-prod
   type: cg-common
@@ -69,7 +78,8 @@ resources:
     secret_access_key: {{nessus-manager-private-secret-access-key-production}}
     secrets_file: nessus-manager.yml
     secrets_passphrase: {{nessus-manager-production-private-passphrase}}
-    bosh_cert: bosh.pem
+    bosh_cert: bosh-tooling.pem
+    region: {{aws-region}}
 
 - name: cg-s3-collectd-release
   type: s3
@@ -79,6 +89,47 @@ resources:
     private: true
     regexp: collectd-(.*).tgz
     secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{aws-region}}
+
+- name: cg-s3-fisma-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: fisma-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{aws-region}}
+
+- name: cg-s3-tripwire-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: tripwire-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{aws-region}}
+
+- name: cg-s3-awslogs-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: awslogs-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{aws-region}}
+
+- name: cg-s3-newrelic-release
+  type: s3
+  source:
+    access_key_id: {{s3-bosh-releases-access-key-id}}
+    bucket: {{s3-bosh-releases-bucket}}
+    private: true
+    regexp: newrelic-(.*).tgz
+    secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: cg-s3-nessus-manager-release
   type: s3
@@ -88,6 +139,7 @@ resources:
     private: true
     regexp: nessus-manager-(.*).tgz
     secret_access_key: {{s3-bosh-releases-secret-access-key}}
+    region_name: {{aws-region}}
 
 - name: nessus-manager-config
   type: git
@@ -96,9 +148,13 @@ resources:
     branch: {{cg-deploy-nessus-manager-git-branch}}
 
 - name: nessus-manager-stemcell
-  type: bosh-io-stemcell
+  type: s3
   source:
-    name: {{nessus-manager-stemcell}}
+    access_key_id: {{stemcell-access-key-id}}
+    bucket: {{stemcell-bucket}}
+    regexp: light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-trusty-go_agent.tgz
+    region_name: {{aws-region}}
+    secret_access_key: {{stemcell-access-key}}
 
 - name: nessus-manager-staging-deployment
   type: 18f-bosh-deployment
@@ -128,3 +184,17 @@ resources:
   type: slack-notification
   source:
     url: {{slack-webhook-url}}
+
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+- name: 18f-bosh-deployment
+  type: docker-image
+  source:
+    repository: 18fgsa/bosh-deployment-resource
+- name: cg-common
+  type: docker-image
+  source:
+    repository: 18fgsa/cg-common-resource

@@ -90,7 +90,7 @@ resource_pools:
     ephemeral_disk:
       size: 30000
       type: gp2
-    availability_zone: us-east-1b
+    availability_zone: (( meta.az ))
 
 compilation:
   network: tooling
@@ -101,7 +101,7 @@ compilation:
     ephemeral_disk:
       size: 30000
       type: gp2
-    availability_zone: us-east-1b
+    availability_zone: (( meta.az ))
 
 update:
   canaries: 1
