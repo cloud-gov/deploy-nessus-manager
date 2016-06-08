@@ -62,6 +62,7 @@ jobs:
   - {name: newrelic-monitor, release: newrelic}
   instances: 1
   resource_pool: t2.medium
+  persistent_disk: 30000
   networks:
   - name: tooling
     static_ips: (( static_ips(1) ))
