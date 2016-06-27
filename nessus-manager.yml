@@ -62,7 +62,7 @@ jobs:
   - {name: newrelic-monitor, release: newrelic}
   instances: 1
   resource_pool: t2.medium
-  persistent_disk: 30000
+  persistent_disk_pool: nessus-manager
   networks:
   - name: tooling
     static_ips: (( static_ips(1) ))
@@ -92,7 +92,14 @@ resource_pools:
     ephemeral_disk:
       size: 30000
       type: gp2
+      encrypted: true
     availability_zone: (( meta.az ))
+
+disk_pools:
+- name: nessus-manager
+  disk_size: 30_000
+  cloud_properties:
+    encrypted: true
 
 compilation:
   network: tooling
@@ -103,6 +110,7 @@ compilation:
     ephemeral_disk:
       size: 30000
       type: gp2
+      encrypted: true
     availability_zone: (( meta.az ))
 
 update:
