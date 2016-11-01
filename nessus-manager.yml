@@ -27,6 +27,8 @@ director_uuid: (( merge ))
 releases:
 - name: collectd
   version: latest
+- name: riemannc
+  version: latest
 - name: cron
   version: latest
 - name: fisma
@@ -59,6 +61,7 @@ jobs:
   - {name: collectd, release: collectd}
   - {name: cron, release: cron}
   - {name: harden, release: fisma}
+  - {name: riemannc, release: riemannc}
   - {name: tripwire, release: tripwire}
   - {name: awslogs, release: awslogs}
   - {name: nessus-manager, release: nessus-manager}
@@ -75,6 +78,9 @@ properties:
   collectd:
     hostname_prefix: (( meta.environment "." ))
     riemann_server: (( meta.collectd.riemann_server ))
+  riemann:
+    server: (( meta.collectd.riemann_server ))
+    port: 5555
   cron:
     entries:
     - command: /var/vcap/jobs/nessus-manager/bin/health.sh
