@@ -27,6 +27,8 @@ director_uuid: (( merge ))
 releases:
 - name: collectd
   version: latest
+- name: cron
+  version: latest
 - name: fisma
   version: latest
 - name: tripwire
@@ -55,6 +57,7 @@ jobs:
 - name: nessus-manager
   templates:
   - {name: collectd, release: collectd}
+  - {name: cron, release: cron}
   - {name: harden, release: fisma}
   - {name: tripwire, release: tripwire}
   - {name: awslogs, release: awslogs}
