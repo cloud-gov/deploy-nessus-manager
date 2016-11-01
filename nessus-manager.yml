@@ -75,6 +75,15 @@ properties:
   collectd:
     hostname_prefix: (( meta.environment "." ))
     riemann_server: (( meta.collectd.riemann_server ))
+  cron:
+    entries:
+    - command: /var/vcap/jobs/nessus-manager/bin/health.sh
+      minute: '*/5'
+      hour: 0
+      day: '*'
+      month: '*'
+      wday: '*'
+      user: root
   tripwire: ~
   awslogs: ~
   nessus-manager:
