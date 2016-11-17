@@ -1,4 +1,3 @@
-groups: []
 jobs:
 - name: deploy-nessus-manager-production
   plan:
@@ -7,20 +6,15 @@ jobs:
     - get: nessus-manager-config
       trigger: true
     - get: common-prod
-    - get: cg-s3-collectd-release
     - get: cg-s3-nessus-manager-release
-    - get: cg-s3-fisma-release
-    - get: cg-s3-tripwire-release
-    - get: cg-s3-awslogs-release
-    - get: cg-s3-newrelic-release
     - get: nessus-manager-stemcell
   - task: nessus-manager-manifest
     file: pipeline-tasks/spiff-merge.yml
     config:
       inputs:
-        - name: pipeline-tasks
-        - name: nessus-manager-config
-        - name: common-prod
+      - name: pipeline-tasks
+      - name: nessus-manager-config
+      - name: common-prod
       params:
         OUTPUT_FILE: spiff-merge/manifest.yml
         SOURCE_FILE: nessus-manager-config/nessus-manager.yml
@@ -30,32 +24,27 @@ jobs:
       cert: common-prod/boshCA.crt
       manifest: spiff-merge/manifest.yml
       releases:
-        - cg-s3-nessus-manager-release/nessus-manager*.tgz
-        - cg-s3-collectd-release/collectd*.tgz
-        - cg-s3-fisma-release/fisma*.tgz
-        - cg-s3-tripwire-release/tripwire*.tgz
-        - cg-s3-awslogs-release/awslogs*.tgz
-        - cg-s3-newrelic-release/newrelic*.tgz
+      - cg-s3-nessus-manager-release/nessus-manager*.tgz
       stemcells:
-        - nessus-manager-stemcell/*.tgz
-    on_failure:
-      put: slack
-      params:
-        text: |
-          :x: FAILED to deploy nessus-manager on production
-          <https://$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-        channel: {{slack-channel}}
-        username: {{slack-username}}
-        icon_url: {{slack-icon-url}}
-    on_success:
-      put: slack
-      params:
-        text: |
-          :white_check_mark: Successfully deployed nessus-manager on production
-          <https://$ATC_EXTERNAL_URL/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-        channel: {{slack-channel}}
-        username: {{slack-username}}
-        icon_url: {{slack-icon-url}}
+      - nessus-manager-stemcell/*.tgz
+  on_failure:
+    put: slack
+    params:
+      text: |
+        :x: FAILED to deploy nessus-manager on production
+        <https://$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+      channel: {{slack-channel}}
+      username: {{slack-username}}
+      icon_url: {{slack-icon-url}}
+  on_success:
+    put: slack
+    params:
+      text: |
+        :white_check_mark: Successfully deployed nessus-manager on production
+        <https://$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+      channel: {{slack-channel}}
+      username: {{slack-username}}
+      icon_url: {{slack-icon-url}}
 
 resources:
 - name: common-stage
@@ -79,56 +68,6 @@ resources:
     secrets_passphrase: {{nessus-manager-production-private-passphrase}}
     bosh_cert: bosh-tooling.pem
     region: {{aws-region}}
-
-- name: cg-s3-collectd-release
-  type: s3
-  source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
-    regexp: collectd-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{aws-region}}
-
-- name: cg-s3-fisma-release
-  type: s3
-  source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
-    regexp: fisma-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{aws-region}}
-
-- name: cg-s3-tripwire-release
-  type: s3
-  source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
-    regexp: tripwire-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{aws-region}}
-
-- name: cg-s3-awslogs-release
-  type: s3
-  source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
-    regexp: awslogs-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{aws-region}}
-
-- name: cg-s3-newrelic-release
-  type: s3
-  source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
-    bucket: {{s3-bosh-releases-bucket}}
-    private: true
-    regexp: newrelic-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
-    region_name: {{aws-region}}
 
 - name: cg-s3-nessus-manager-release
   type: s3
@@ -189,10 +128,12 @@ resource_types:
   type: docker-image
   source:
     repository: cfcommunity/slack-notification-resource
+
 - name: 18f-bosh-deployment
   type: docker-image
   source:
     repository: 18fgsa/bosh-deployment-resource
+
 - name: cg-common
   type: docker-image
   source:
