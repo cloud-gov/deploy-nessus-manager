@@ -25,21 +25,7 @@ meta:
 director_uuid: (( merge ))
 
 releases:
-- name: collectd
-  version: latest
-- name: riemannc
-  version: latest
-- name: cron
-  version: latest
-- name: fisma
-  version: latest
-- name: tripwire
-  version: latest
-- name: awslogs
-  version: latest
 - name: nessus-manager
-  version: latest
-- name: newrelic
   version: latest
 
 networks:
@@ -58,14 +44,7 @@ networks:
 jobs:
 - name: nessus-manager
   templates:
-  - {name: collectd, release: collectd}
-  - {name: cron, release: cron}
-  - {name: harden, release: fisma}
-  - {name: riemannc, release: riemannc}
-  - {name: tripwire, release: tripwire}
-  - {name: awslogs, release: awslogs}
   - {name: nessus-manager, release: nessus-manager}
-  - {name: newrelic-monitor, release: newrelic}
   instances: 1
   resource_pool: t2.medium
   persistent_disk_pool: nessus-manager
@@ -75,12 +54,6 @@ jobs:
 
 properties:
   env: nessus-manager
-  collectd:
-    hostname_prefix: (( meta.environment "." ))
-    riemann_server: (( meta.collectd.riemann_server ))
-  riemann:
-    server: (( meta.collectd.riemann_server ))
-    port: 5555
   cron:
     entries:
     - command: /var/vcap/jobs/nessus-manager/bin/health.sh
@@ -90,13 +63,10 @@ properties:
       month: '*'
       wday: '*'
       user: root
-  tripwire: ~
-  awslogs: ~
   nessus-manager:
     license: (( meta.nessus-manager.license ))
     username: (( meta.nessus-manager.username ))
     password: (( meta.nessus-manager.password ))
-  newrelic: ~
 
 resource_pools:
 - name: t2.medium
