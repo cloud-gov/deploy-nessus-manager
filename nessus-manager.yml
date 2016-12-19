@@ -27,6 +27,8 @@ director_uuid: (( merge ))
 releases:
 - name: nessus-manager
   version: latest
+- name: cron
+  version: latest
 
 networks:
   - name: tooling
@@ -45,6 +47,7 @@ jobs:
 - name: nessus-manager
   templates:
   - {name: nessus-manager, release: nessus-manager}
+  - {name: cron, release: cron}
   instances: 1
   resource_pool: t2.medium
   persistent_disk_pool: nessus-manager
