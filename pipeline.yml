@@ -2,6 +2,7 @@ jobs:
 - name: deploy-nessus-manager-production
   plan:
   - aggregate:
+    - get: master-bosh-root-cert
     - get: pipeline-tasks
     - get: nessus-manager-config
       trigger: true
@@ -21,7 +22,7 @@ jobs:
         MERGE_FILES: common-prod/secrets.yml
   - put: nessus-manager-production-deployment
     params:
-      cert: common-prod/boshCA.crt
+      cert: master-bosh-root-cert/master-bosh.crt
       manifest: spiff-merge/manifest.yml
       releases:
       - cg-s3-nessus-manager-release/nessus-manager*.tgz
@@ -47,16 +48,14 @@ jobs:
       icon_url: {{slack-icon-url}}
 
 resources:
-- name: common-stage
-  type: cg-common
+- name: master-bosh-root-cert
+  type: s3
   source:
-    bucket_name: {{nessus-manager-private-bucket-staging}}
-    access_key_id: {{nessus-manager-private-access-key-id-staging}}
-    secret_access_key: {{nessus-manager-private-secret-access-key-staging}}
-    secrets_file: nessus-manager-staging.yml
-    secrets_passphrase: {{nessus-manager-staging-private-passphrase}}
-    bosh_cert: bosh-tooling.pem
-    region: {{aws-region}}
+    access_key_id: {{nessus-manager-private-access-key-id-production}}
+    bucket: {{nessus-manager-private-bucket-production}}
+    region_name: {{aws-region}}
+    secret_access_key: {{nessus-manager-private-secret-access-key-production}}
+    versioned_file: master-bosh.crt
 
 - name: common-prod
   type: cg-common
@@ -93,15 +92,6 @@ resources:
     regexp: light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-trusty-go_agent.tgz
     region_name: {{aws-region}}
     secret_access_key: {{stemcell-access-key}}
-
-- name: nessus-manager-staging-deployment
-  type: 18f-bosh-deployment
-  source:
-    target: {{nessus-manager-staging-deployment-bosh-target}}
-    username: {{nessus-manager-staging-deployment-bosh-username}}
-    password: {{nessus-manager-staging-deployment-bosh-password}}
-    deployment: {{nessus-manager-staging-deployment-bosh-deployment}}
-    ignore_ssl: false
 
 - name: nessus-manager-production-deployment
   type: 18f-bosh-deployment
