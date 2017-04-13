@@ -3,27 +3,32 @@ jobs:
   plan:
   - aggregate:
     - get: master-bosh-root-cert
-    - get: pipeline-tasks
     - get: nessus-manager-config
       trigger: true
     - get: common-prod
     - get: cg-s3-nessus-manager-release
     - get: nessus-manager-stemcell
+    - get: terraform-yaml
   - task: nessus-manager-manifest
-    file: pipeline-tasks/spiff-merge.yml
     config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: 18fgsa/concourse-task
       inputs:
-      - name: pipeline-tasks
       - name: nessus-manager-config
       - name: common-prod
-      params:
-        OUTPUT_FILE: spiff-merge/manifest.yml
-        SOURCE_FILE: nessus-manager-config/nessus-manager.yml
-        MERGE_FILES: common-prod/secrets.yml
+      - name: terraform-yaml
+      run:
+        path: nessus-manager-config/generate.sh
+        args: ["common-prod/secrets.yml", "terraform-yaml/state.yml", "merged-manifest/manifest.yml"]
+      outputs:
+      - name: merged-manifest
   - put: nessus-manager-production-deployment
     params:
       cert: master-bosh-root-cert/master-bosh.crt
-      manifest: spiff-merge/manifest.yml
+      manifest: merged-manifest/manifest.yml
       releases:
       - cg-s3-nessus-manager-release/nessus-manager*.tgz
       stemcells:
@@ -102,11 +107,12 @@ resources:
     deployment: {{nessus-manager-production-deployment-bosh-deployment}}
     ignore_ssl: false
 
-- name: pipeline-tasks
-  type: git
+- name: terraform-yaml
+  type: s3-iam
   source:
-    uri: {{pipeline-tasks-git-url}}
-    branch: {{pipeline-tasks-git-branch}}
+    bucket: {{tf-state-bucket-tooling}}
+    versioned_file: {{tf-state-file-tooling}}
+    region_name: {{aws-region}}
 
 - name: slack
   type: slack-notification
@@ -128,3 +134,8 @@ resource_types:
   type: docker-image
   source:
     repository: 18fgsa/cg-common-resource
+
+- name: s3-iam
+  type: docker-image
+  source:
+    repository: 18fgsa/s3-resource

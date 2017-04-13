@@ -1,29 +1,5 @@
 name: nessus-manager-prod
 
-meta:
-  az: ~
-  aws:
-    access_key_id: ~
-    secret_access_key: ~
-  collectd:
-    riemann_server: ~
-  environment: ~
-  nessus-manager:
-    license: ~
-    username: ~
-    password: ~
-  network:
-    range: ~
-    reserved: ~
-    static: ~
-    dns: ~
-    gateway: ~
-    subnet: ~
-    security_groups: ~
-  elbs: ~
-
-director_uuid: (( merge ))
-
 releases:
 - name: nessus-manager
   version: latest
@@ -34,14 +10,15 @@ networks:
   - name: tooling
     type: manual
     subnets:
-      - range: (( meta.network.range ))
-        reserved: (( meta.network.reserved ))
-        gateway: (( meta.network.gateway ))
-        dns: (( meta.network.dns ))
-        static: (( meta.network.static ))
+      - range: (( grab meta.network.range ))
+        reserved: (( grab meta.network.reserved ))
+        gateway: (( grab meta.network.gateway ))
+        dns: (( grab meta.network.dns ))
+        static:
+        - (( grab meta.network.static ))
         cloud_properties:
-          security_groups: (( meta.network.security_groups ))
-          subnet: (( meta.network.subnet ))
+          security_groups: (( grab meta.network.security_groups ))
+          subnet: (( grab meta.network.subnet ))
 
 jobs:
 - name: nessus-manager
@@ -67,9 +44,9 @@ properties:
       wday: '*'
       user: root
   nessus-manager:
-    license: (( meta.nessus-manager.license ))
-    username: (( meta.nessus-manager.username ))
-    password: (( meta.nessus-manager.password ))
+    license: (( grab meta.nessus-manager.license ))
+    username: (( grab meta.nessus-manager.username ))
+    password: (( grab meta.nessus-manager.password ))
 
 resource_pools:
 - name: t2.medium
@@ -79,12 +56,12 @@ resource_pools:
     version: latest
   cloud_properties:
     instance_type: t2.medium
-    elbs: (( meta.elbs ))
+    elbs: (( grab meta.elbs ))
     ephemeral_disk:
       size: 30000
       type: gp2
       encrypted: true
-    availability_zone: (( meta.az ))
+    availability_zone: (( grab meta.az ))
 
 disk_pools:
 - name: nessus-manager
@@ -98,11 +75,12 @@ compilation:
   workers: 2
   cloud_properties:
     instance_type: t2.medium
+    iam_instance_profile: (( grab terraform_outputs.bosh_compilation_profile ))
     ephemeral_disk:
       size: 30000
       type: gp2
       encrypted: true
-    availability_zone: (( meta.az ))
+    availability_zone: (( grab meta.az ))
 
 update:
   canaries: 1
