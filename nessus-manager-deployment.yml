@@ -1,0 +1,53 @@
+---
+name: nessus-manager-prod
+
+director_uuid: (( param "specify director uuid" ))
+
+releases:
+- name: nessus-manager
+  version: latest
+- name: cron
+  version: latest
+
+update:
+  canaries: 1
+  canary_watch_time: 1000-300000
+  max_in_flight: 50
+  serial: false
+  update_watch_time: 1000-300000
+
+stemcells:
+- alias: default
+  name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+  version: latest
+
+instance_groups:
+- name: nessus-manager
+  instances: 1
+  azs: [z1]
+  networks:
+  - name: nessus-manager
+    static_ips:
+    - (( grab terraform_outputs.nessus_static_ip ))
+  vm_type: nessus-manager
+  vm_extensions: [nessus-manager-lb]
+  persistent_disk_type: nessus-manager
+  stemcell: default
+  migrated_from:
+  - name: nessus-manager
+    az: z1
+  jobs:
+  - name: nessus-manager
+    release: nessus-manager
+  - name: cron
+    release: cron
+    properties:
+      cron:
+        entries:
+        - command: /var/vcap/jobs/nessus-manager/bin/health.sh
+          minute: '*/5'
+          hour: '*'
+          day: '*'
+          month: '*'
+          wday: '*'
+          user: root
