@@ -28,26 +28,26 @@ instance_groups:
   - name: nessus-manager
     static_ips:
     - (( grab terraform_outputs.nessus_static_ip ))
- jobs:
-      - name: nessus-manager
-        release: nessus-manager
-        properties:
-          nessus-manager:
-            license: (( grab meta.nessus-manager.license ))
-            username: (( grab meta.nessus-manager.username ))
-            password: (( grab meta.nessus-manager.password ))
-      - name: cron
-        release: cron
-        properties:
-          cron:
-            entries:
-            - command: /var/vcap/jobs/nessus-manager/bin/health.sh
-              minute: '*/5'
-              hour: '*'
-              day: '*'
-              month: '*'
-              wday: '*'
-              user: root
+  jobs:
+  - name: nessus-manager
+    release: nessus-manager
+    properties:
+      nessus-manager:
+        license: (( grab meta.nessus-manager.license ))
+        username: (( grab meta.nessus-manager.username ))
+        password: (( grab meta.nessus-manager.password ))
+  - name: cron
+    release: cron
+    properties:
+      cron:
+        entries:
+        - command: /var/vcap/jobs/nessus-manager/bin/health.sh
+          minute: '*/5'
+          hour: '*'
+          day: '*'
+          month: '*'
+          wday: '*'
+          user: root
 
   azs: [z1]
   vm_type: nessus-manager
