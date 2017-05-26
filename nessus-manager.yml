@@ -31,11 +31,6 @@ instance_groups:
   jobs:
   - name: nessus-manager
     release: nessus-manager
-    properties:
-      nessus-manager:
-        license: (( grab meta.nessus-manager.license ))
-        username: (( grab meta.nessus-manager.username ))
-        password: (( grab meta.nessus-manager.password ))
   - name: cron
     release: cron
     properties:
