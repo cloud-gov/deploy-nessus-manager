@@ -23,11 +23,16 @@ stemcell:
 
 instance_groups:
 - name: nessus-manager
-  stemcell: default
+  instances: 1
+  azs: [z1]
   networks:
   - name: nessus-manager
     static_ips:
     - (( grab terraform_outputs.nessus_static_ip ))
+  vm_type: nessus-manager
+  vm_extensions: [nessus-manager-lb]
+  persistent_disk_type: nessus-manager
+  stemcell: default
   jobs:
   - name: nessus-manager
     release: nessus-manager
@@ -43,9 +48,3 @@ instance_groups:
           month: '*'
           wday: '*'
           user: root
-
-  azs: [z1]
-  vm_type: nessus-manager
-  vm_extensions: [nessus-manager-lb]
-  instances: 1
-  persistent_disk_type: nessus-manager

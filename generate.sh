@@ -18,7 +18,7 @@ if [ ! -z "$3" ]; then
 fi
 
 spruce merge --prune meta --prune terraform_outputs \
-  $SCRIPTPATH/nessus-manager.yml \
+  $SCRIPTPATH/nessus-manager-deployment.yml \
   $SECRETS \
   $TERRAFORM \
   > $MANIFEST
