@@ -22,7 +22,7 @@ jobs:
       - name: terraform-yaml
       run:
         path: nessus-manager-config/generate.sh
-        args: ["common-prod/secrets.yml", "terraform-yaml/state.yml", "merged-manifest/manifest.yml"]
+        args: ["common-prod/decrypted-nessus-manager.main.yml", "common-prod/decrypted-nessus-manager.external.yml", "terraform-yaml/state.yml", "merged-manifest/manifest.yml"]
       outputs:
       - name: merged-manifest
   - put: nessus-manager-production-deployment
@@ -68,7 +68,9 @@ resources:
     bucket_name: {{nessus-manager-private-bucket-production}}
     access_key_id: {{nessus-manager-private-access-key-id-production}}
     secret_access_key: {{nessus-manager-private-secret-access-key-production}}
-    secrets_file: nessus-manager.yml
+    secrets_files:
+    - nessus-manager.main.yml
+    - nessus-manager.external.yml
     secrets_passphrase: {{nessus-manager-production-private-passphrase}}
     bosh_cert: bosh-tooling.pem
     region: {{aws-region}}
