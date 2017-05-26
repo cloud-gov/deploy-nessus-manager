@@ -4,21 +4,27 @@ set -e -x
 
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
 
-SECRETS=$SCRIPTPATH/secrets.yml
+MAIN_SECRETS=$SCRIPTPATH/secrets.yml
+EXT_SECRETS=$SCRIPTPATH/secrets-external.yml
 TERRAFORM=$SCRIPTPATH/terraform.yml
 MANIFEST=$SCRIPTPATH/manifest.yml
+
 if [ ! -z "$1" ]; then
-  SECRETS=$1
+  MAIN_SECRETS=$1
 fi
 if [ ! -z "$2" ]; then
-  TERRAFORM=$2
+  EXT_SECRETS=$2
 fi
 if [ ! -z "$3" ]; then
-  MANIFEST=$3
+  TERRAFORM=$3
+fi
+if [ ! -z "$4" ]; then
+  MANIFEST=$4
 fi
 
 spruce merge --prune meta --prune terraform_outputs \
   $SCRIPTPATH/nessus-manager-deployment.yml \
-  $SECRETS \
+  $MAIN_SECRETS \
+  $EXT_SECRETS \
   $TERRAFORM \
   > $MANIFEST
