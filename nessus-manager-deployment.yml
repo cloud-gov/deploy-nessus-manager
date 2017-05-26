@@ -16,7 +16,7 @@ update:
   serial: false
   update_watch_time: 1000-300000
 
-stemcell:
+stemcells:
 - alias: default
   name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
   version: latest
