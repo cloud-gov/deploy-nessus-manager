@@ -25,6 +25,8 @@ jobs:
         args: ["common-prod/decrypted-nessus-manager.main.yml", "common-prod/decrypted-nessus-manager.external.yml", "terraform-yaml/state.yml", "merged-manifest/manifest.yml"]
       outputs:
       - name: merged-manifest
+  - task: lint-manifest
+    file: nessus-manager-config/lint-manifest.yml
   - put: nessus-manager-production-deployment
     params:
       cert: master-bosh-root-cert/master-bosh.crt
