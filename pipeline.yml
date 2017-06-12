@@ -56,20 +56,16 @@ jobs:
 
 resources:
 - name: master-bosh-root-cert
-  type: s3
+  type: s3-iam
   source:
-    access_key_id: {{nessus-manager-private-access-key-id-production}}
     bucket: {{nessus-manager-private-bucket-production}}
     region_name: {{aws-region}}
-    secret_access_key: {{nessus-manager-private-secret-access-key-production}}
     versioned_file: master-bosh.crt
 
 - name: common-prod
   type: cg-common
   source:
     bucket_name: {{nessus-manager-private-bucket-production}}
-    access_key_id: {{nessus-manager-private-access-key-id-production}}
-    secret_access_key: {{nessus-manager-private-secret-access-key-production}}
     secrets_files:
     - nessus-manager.main.yml
     - nessus-manager.external.yml
@@ -78,13 +74,11 @@ resources:
     region: {{aws-region}}
 
 - name: cg-s3-nessus-manager-release
-  type: s3
+  type: s3-iam
   source:
-    access_key_id: {{s3-bosh-releases-access-key-id}}
     bucket: {{s3-bosh-releases-bucket}}
     private: true
     regexp: nessus-manager-(.*).tgz
-    secret_access_key: {{s3-bosh-releases-secret-access-key}}
     region_name: {{aws-region}}
 
 - name: nessus-manager-config
@@ -94,13 +88,11 @@ resources:
     branch: {{cg-deploy-nessus-manager-git-branch}}
 
 - name: nessus-manager-stemcell
-  type: s3
+  type: s3-iam
   source:
-    access_key_id: {{stemcell-access-key-id}}
     bucket: {{stemcell-bucket}}
     regexp: light-bosh-stemcell-(.*)-aws-xen-hvm-ubuntu-trusty-go_agent.tgz
     region_name: {{aws-region}}
-    secret_access_key: {{stemcell-access-key}}
 
 - name: nessus-manager-production-deployment
   type: 18f-bosh-deployment
