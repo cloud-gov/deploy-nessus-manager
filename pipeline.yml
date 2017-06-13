@@ -4,7 +4,6 @@ jobs:
   - aggregate:
     - get: master-bosh-root-cert
     - get: nessus-manager-config
-      trigger: true
     - get: common-prod
     - get: cg-s3-nessus-manager-release
     - get: nessus-manager-stemcell
