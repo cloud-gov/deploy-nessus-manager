@@ -25,7 +25,13 @@ jobs:
       outputs:
       - name: merged-manifest
   - task: lint-manifest
-    file: nessus-manager-config/lint-manifest.yml
+    file: common-prod/lint-manifest.yml
+    input_mapping:
+    - nessus-manager-config: pipeline-config
+    - merged-manifest: lint-manifest
+    params:
+      MANIFEST_FILE: manifest.yml
+      LINTER_CONFIG: bosh-lint.yml
   - put: nessus-manager-production-deployment
     params:
       cert: master-bosh-root-cert/master-bosh.crt
