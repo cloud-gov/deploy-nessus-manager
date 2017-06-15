@@ -3,6 +3,7 @@ jobs:
   plan:
   - aggregate:
     - get: master-bosh-root-cert
+    - get: pipeline-tasks
     - get: nessus-manager-config
     - get: common-prod
     - get: cg-s3-nessus-manager-release
@@ -65,6 +66,12 @@ resources:
     bucket: {{nessus-manager-private-bucket-production}}
     region_name: {{aws-region}}
     versioned_file: master-bosh.crt
+
+- name: pipeline-tasks
+  type: git
+  source:
+    uri: {{pipeline-tasks-git-url}}
+    branch: {{pipeline-tasks-git-branch}}
 
 - name: common-prod
   type: cg-common
