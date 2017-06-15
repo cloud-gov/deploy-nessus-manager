@@ -3,6 +3,7 @@ jobs:
   plan:
   - aggregate:
     - get: master-bosh-root-cert
+    - get: pipeline-tasks
     - get: nessus-manager-config
     - get: common-prod
     - get: cg-s3-nessus-manager-release
@@ -25,7 +26,12 @@ jobs:
       outputs:
       - name: merged-manifest
   - task: lint-manifest
-    file: nessus-manager-config/lint-manifest.yml
+    file: pipeline-tasks/lint-manifest.yml
+    input_mapping:
+      pipeline-config: nessus-manager-config
+      lint-manifest: merged-manifest
+    params:
+      LINTER_CONFIG: bosh-lint.yml
   - put: nessus-manager-production-deployment
     params:
       cert: master-bosh-root-cert/master-bosh.crt
@@ -60,6 +66,12 @@ resources:
     bucket: {{nessus-manager-private-bucket-production}}
     region_name: {{aws-region}}
     versioned_file: master-bosh.crt
+
+- name: pipeline-tasks
+  type: git
+  source:
+    uri: {{pipeline-tasks-git-url}}
+    branch: {{pipeline-tasks-git-branch}}
 
 - name: common-prod
   type: cg-common
