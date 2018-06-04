@@ -1,8 +1,6 @@
 ---
 name: nessus-manager-prod
 
-director_uuid: (( param "specify director uuid" ))
-
 releases:
 - name: nessus-manager
   version: latest
@@ -28,7 +26,7 @@ instance_groups:
   networks:
   - name: nessus-manager
     static_ips:
-    - (( grab terraform_outputs.nessus_static_ip ))
+    - ((terraform_outputs.nessus_static_ip))
   vm_type: nessus-manager
   vm_extensions: [nessus-manager-lb]
   persistent_disk_type: nessus-manager
@@ -39,6 +37,11 @@ instance_groups:
   jobs:
   - name: nessus-manager
     release: nessus-manager
+    properties:
+      nessus-manager:
+        license: ((nessus_manager_license))
+        username: ((nessus_manager_username))
+        password: ((nessus_manager_password))
   - name: cron
     release: cron
     properties:
@@ -51,3 +54,6 @@ instance_groups:
           month: '*'
           wday: '*'
           user: root
+variables:
+- name: nessus_manager_password
+  type: password
