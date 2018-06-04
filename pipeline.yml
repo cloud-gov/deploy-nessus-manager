@@ -2,40 +2,18 @@ jobs:
 - name: deploy-nessus-manager-production
   plan:
   - aggregate:
-    - get: master-bosh-root-cert
     - get: pipeline-tasks
     - get: nessus-manager-config
     - get: common-prod
     - get: cg-s3-nessus-manager-release
     - get: nessus-manager-stemcell
     - get: terraform-yaml
-  - task: nessus-manager-manifest
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: 18fgsa/concourse-task
-      inputs:
-      - name: nessus-manager-config
-      - name: common-prod
-      - name: terraform-yaml
-      run:
-        path: nessus-manager-config/generate.sh
-        args: ["common-prod/decrypted-nessus-manager.main.yml", "common-prod/decrypted-nessus-manager.external.yml", "terraform-yaml/state.yml", "merged-manifest/manifest.yml"]
-      outputs:
-      - name: merged-manifest
-  - task: lint-manifest
-    file: pipeline-tasks/lint-manifest.yml
-    input_mapping:
-      pipeline-config: nessus-manager-config
-      lint-manifest: merged-manifest
-    params:
-      LINTER_CONFIG: bosh-lint.yml
   - put: nessus-manager-production-deployment
     params:
-      cert: master-bosh-root-cert/master-bosh.crt
-      manifest: merged-manifest/manifest.yml
+      manifest: nessus-manager-config/nessus-manager-deployment.yml
+      vars_files:
+      - terraform-yaml/state.yml
+      - common-prod/nessus-manager-decrypted.yml
       releases:
       - cg-s3-nessus-manager-release/nessus-manager*.tgz
       stemcells:
@@ -46,57 +24,46 @@ jobs:
       text: |
         :x: FAILED to deploy nessus-manager on production
         <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-      channel: {{slack-channel}}
-      username: {{slack-username}}
-      icon_url: {{slack-icon-url}}
+      channel: ((slack-channel))
+      username: ((slack-username))
+      icon_url: ((slack-icon-url))
   on_success:
     put: slack
     params:
       text: |
         :white_check_mark: Successfully deployed nessus-manager on production
         <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-      channel: {{slack-channel}}
-      username: {{slack-username}}
-      icon_url: {{slack-icon-url}}
+      channel: ((slack-channel))
+      username: ((slack-username))
+      icon_url: ((slack-icon-url))
 
 resources:
-- name: master-bosh-root-cert
-  type: s3-iam
-  source:
-    bucket: {{nessus-manager-private-bucket-production}}
-    region_name: {{aws-region}}
-    versioned_file: master-bosh.crt
-
 - name: pipeline-tasks
   type: git
   source:
-    uri: {{pipeline-tasks-git-url}}
-    branch: {{pipeline-tasks-git-branch}}
+    uri: ((pipeline-tasks-git-url))
+    branch: ((pipeline-tasks-git-branch))
 
 - name: common-prod
-  type: cg-common
+  type: s3-iam
   source:
-    bucket_name: {{nessus-manager-private-bucket-production}}
-    secrets_files:
-    - nessus-manager.main.yml
-    - nessus-manager.external.yml
-    secrets_passphrase: {{nessus-manager-production-private-passphrase}}
-    bosh_cert: bosh-tooling.pem
-    region: {{aws-region}}
+    bucket: ((private-bucket-production))
+    versioned_file: nessus-manager-decrypted.yml
+    region_name: ((aws-region))
 
 - name: cg-s3-nessus-manager-release
   type: s3-iam
   source:
-    bucket: {{s3-bosh-releases-bucket}}
+    bucket: ((s3-bosh-releases-bucket))
     private: true
     regexp: nessus-manager-(.*).tgz
-    region_name: {{aws-region}}
+    region_name: ((aws-region))
 
 - name: nessus-manager-config
   type: git
   source:
-    uri: {{cg-deploy-nessus-manager-git-url}}
-    branch: {{cg-deploy-nessus-manager-git-branch}}
+    uri: ((cg-deploy-nessus-manager-git-url))
+    branch: ((cg-deploy-nessus-manager-git-branch))
 
 - name: nessus-manager-stemcell
   type: bosh-io-stemcell
@@ -104,25 +71,25 @@ resources:
     name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
 
 - name: nessus-manager-production-deployment
-  type: 18f-bosh-deployment
+  type: bosh-deployment
   source:
-    target: {{nessus-manager-production-deployment-bosh-target}}
-    username: {{nessus-manager-production-deployment-bosh-username}}
-    password: {{nessus-manager-production-deployment-bosh-password}}
-    deployment: {{nessus-manager-production-deployment-bosh-deployment}}
-    ignore_ssl: false
+    target: ((bosh-target))
+    client: ((bosh-username))
+    client_secret: ((bosh-password))
+    ca_cert: ((bosh-ca))
+    deployment: ((bosh-deployment))
 
 - name: terraform-yaml
   type: s3-iam
   source:
-    bucket: {{tf-state-bucket-tooling}}
-    versioned_file: {{tf-state-file-tooling}}
-    region_name: {{aws-region}}
+    bucket: ((tf-state-bucket-tooling))
+    versioned_file: ((tf-state-file-tooling))
+    region_name: ((aws-region))
 
 - name: slack
   type: slack-notification
   source:
-    url: {{slack-webhook-url}}
+    url: ((slack-webhook-url))
 
 resource_types:
 - name: slack-notification
@@ -130,10 +97,10 @@ resource_types:
   source:
     repository: cfcommunity/slack-notification-resource
 
-- name: 18f-bosh-deployment
+- name: bosh-deployment
   type: docker-image
   source:
-    repository: 18fgsa/bosh-deployment-resource
+    repository: cloudfoundry/bosh-deployment-resource
 
 - name: cg-common
   type: docker-image
