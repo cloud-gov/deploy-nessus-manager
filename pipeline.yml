@@ -6,7 +6,7 @@ jobs:
     - get: nessus-manager-config
     - get: common-prod
     - get: cg-s3-nessus-manager-release
-    - get: nessus-manager-stemcell
+    - get: nessus-manager-stemcell-xenial
     - get: terraform-yaml
   - put: nessus-manager-production-deployment
     params:
@@ -17,7 +17,7 @@ jobs:
       releases:
       - cg-s3-nessus-manager-release/nessus-manager*.tgz
       stemcells:
-      - nessus-manager-stemcell/*.tgz
+      - nessus-manager-stemcell-xenial/*.tgz
   on_failure:
     put: slack
     params:
@@ -65,10 +65,10 @@ resources:
     uri: ((cg-deploy-nessus-manager-git-url))
     branch: ((cg-deploy-nessus-manager-git-branch))
 
-- name: nessus-manager-stemcell
+- name: nessus-manager-stemcell-xenial
   type: bosh-io-stemcell
   source:
-    name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+    name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
 
 - name: nessus-manager-production-deployment
   type: bosh-deployment
