@@ -1,7 +1,7 @@
 jobs:
 - name: deploy-nessus-manager-production
   plan:
-  - aggregate:
+  - in_parallel:
     - get: pipeline-tasks
     - get: nessus-manager-config
     - get: common-prod
