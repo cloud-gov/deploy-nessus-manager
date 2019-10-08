@@ -13,7 +13,6 @@ jobs:
       manifest: nessus-manager-config/nessus-manager-deployment.yml
       vars_files:
       - terraform-yaml/state.yml
-      - common-prod/nessus-manager-decrypted.yml
       releases:
       - cg-s3-nessus-manager-release/nessus-manager*.tgz
       stemcells:
