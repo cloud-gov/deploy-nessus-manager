@@ -1,13 +1,29 @@
 jobs:
+- name: reconfigure
+  plan:
+  - get: pipeline-credentials
+    trigger: true
+  - get: nessus-manager-config
+    trigger: true
+  - set_pipeline: deploy-nessus-manager
+    file: nessus-manager-config/pipeline.yml
+    var_files:
+    - pipeline-credentials/cg-deploy-nessus-manager.yml
 - name: deploy-nessus-manager-production
   plan:
   - in_parallel:
     - get: pipeline-tasks
     - get: nessus-manager-config
+      trigger: true
+      passed: [reconfigure]
     - get: common-prod
+      trigger: true
     - get: cg-s3-nessus-manager-release
+      trigger: true
     - get: nessus-manager-stemcell-xenial
+      trigger: true
     - get: terraform-yaml
+      trigger: true
   - put: nessus-manager-production-deployment
     params:
       manifest: nessus-manager-config/nessus-manager-deployment.yml
@@ -50,6 +66,13 @@ resources:
     versioned_file: nessus-manager-decrypted.yml
     region_name: ((aws-region))
 
+- name: pipeline-credentials
+  type: s3-iam
+  source:
+    bucket: ((concourse-varz))
+    versioned_file: ((concourse-varz-file))
+    region_name: ((aws-region))
+
 - name: cg-s3-nessus-manager-release
   type: s3-iam
   source:
@@ -61,8 +84,8 @@ resources:
 - name: nessus-manager-config
   type: git
   source:
-    uri: ((cg-deploy-nessus-manager-git-url))
-    branch: ((cg-deploy-nessus-manager-git-branch))
+    uri: https://github.com/18F/cg-deploy-nessus-manager.git
+    branch: master
 
 - name: nessus-manager-stemcell-xenial
   type: bosh-io-stemcell
