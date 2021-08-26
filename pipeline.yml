@@ -20,7 +20,7 @@ jobs:
       trigger: true
     - get: cg-s3-nessus-manager-release
       trigger: true
-    - get: nessus-manager-stemcell-xenial
+    - get: nessus-manager-stemcell-bionic
       trigger: true
     - get: terraform-yaml
       trigger: true
@@ -32,7 +32,7 @@ jobs:
       releases:
       - cg-s3-nessus-manager-release/nessus-manager*.tgz
       stemcells:
-      - nessus-manager-stemcell-xenial/*.tgz
+      - nessus-manager-stemcell-bionic/*.tgz
   on_failure:
     put: slack
     params:
@@ -87,10 +87,10 @@ resources:
     uri: https://github.com/18F/cg-deploy-nessus-manager.git
     branch: master
 
-- name: nessus-manager-stemcell-xenial
+- name: nessus-manager-stemcell-bionic
   type: bosh-io-stemcell
   source:
-    name: bosh-aws-xen-hvm-ubuntu-xenial-go_agent
+    name: bosh-aws-xen-hvm-ubuntu-bionic-go_agent
 
 - name: nessus-manager-production-deployment
   type: bosh-deployment
