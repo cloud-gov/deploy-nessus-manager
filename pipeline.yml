@@ -58,6 +58,7 @@ resources:
   source:
     uri: ((pipeline-tasks-git-url))
     branch: ((pipeline-tasks-git-branch))
+    commit_verification_keys: ((cloud-gov-pgp-keys))
 
 - name: common-prod
   type: s3-iam
@@ -86,6 +87,7 @@ resources:
   source:
     uri: https://github.com/18F/cg-deploy-nessus-manager.git
     branch: master
+    commit_verification_keys: ((cloud-gov-pgp-keys))
 
 - name: nessus-manager-stemcell-bionic
   type: bosh-io-stemcell
