@@ -85,8 +85,8 @@ resources:
 - name: nessus-manager-config
   type: git
   source:
-    uri: https://github.com/18F/cg-deploy-nessus-manager.git
-    branch: master
+    uri: https://github.com/cloud-gov/cg-deploy-nessus-manager.git
+    branch: main
     commit_verification_keys: ((cloud-gov-pgp-keys))
 
 - name: nessus-manager-stemcell-jammy
