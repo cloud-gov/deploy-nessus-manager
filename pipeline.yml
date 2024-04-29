@@ -25,23 +25,16 @@ jobs:
     - get: terraform-state-yml
       trigger: true
   - task: debug
-    platform: linux
-    image_resource:
-      type: registry-image
-      source:
-        repository: golang
-        tag: '1.6'
-    inputs:
-    - name: cg-deploy-nessus-manager
-    - name: cg-s3-nessus-manager-release
-    - name: nessus-manager-stemcell-jammy
-    - name: terraform-state-yml
-    run:
-      path: sh
-      args:
-      - -exc
-      - |
-        ls -R
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source: { repository: busybox }
+      run:
+        path: sh
+        args:
+          - -exc
+          - ls -R
   - put: nessus-manager-production-deployment
     params:
       manifest: cg-deploy-nessus-manager/nessus-manager-deployment.yml
