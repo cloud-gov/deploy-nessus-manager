@@ -24,7 +24,7 @@ jobs:
       trigger: true
     - get: terraform-state-yml
       trigger: true
-  - task:
+  - task: debug
     platform: linux
     image_resource:
       type: registry-image
