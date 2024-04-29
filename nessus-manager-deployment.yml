@@ -36,8 +36,8 @@ instance_groups:
     release: nessus-manager
     properties:
       nessus-manager:
-        license: ((/nessus.manager_license))
-        username: ((/nessus.manager_username))
+        license: ((/nessus_manager.license))
+        username: ((/nessus_manager.username))
         password: ((nessus_manager_password))
   - name: cron
     release: cron
