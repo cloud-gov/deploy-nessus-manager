@@ -110,7 +110,7 @@ resources:
   source:
     name: bosh-aws-xen-hvm-ubuntu-jammy-go_agent
 
-- name: nessus-manager-production-deployment
+- name: nessus-manager-deployment
   type: bosh-deployment
   source:
     target: ((bosh_director.target))
