@@ -44,7 +44,7 @@ jobs:
     params:
       manifest: cg-deploy-nessus-manager/nessus-manager-deployment.yml
       vars_files:
-      - terraform-state-yml/((buckets.terraform_state_file))
+      - terraform-state-yml/terraform-state.yml
       releases:
       - cg-s3-nessus-manager-release/nessus-manager*.tgz
       stemcells:
