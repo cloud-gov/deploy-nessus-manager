@@ -30,6 +30,11 @@ jobs:
       image_resource:
         type: registry-image
         source: { repository: busybox }
+      inputs:
+      - cg-deploy-nessus-manager
+      - cg-s3-nessus-manager-release
+      - nessus-manager-stemcell-jammy
+      - terraform-state-yml
       run:
         path: sh
         args:
