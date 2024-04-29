@@ -24,23 +24,23 @@ jobs:
       trigger: true
     - get: terraform-state-yml
       trigger: true
-  - task: debug
-    config:
-      platform: linux
-      image_resource:
-        type: registry-image
-        source: { repository: busybox }
-      inputs:
-      - name: cg-deploy-nessus-manager
-      - name: cg-s3-nessus-manager-release
-      - name: nessus-manager-stemcell-jammy
-      - name: terraform-state-yml
-      run:
-        path: sh
-        args:
-          - -exc
-          - ls -R
-  - put: nessus-manager-production-deployment
+  # - task: debug
+  #   config:
+  #     platform: linux
+  #     image_resource:
+  #       type: registry-image
+  #       source: { repository: busybox }
+  #     inputs:
+  #     - name: cg-deploy-nessus-manager
+  #     - name: cg-s3-nessus-manager-release
+  #     - name: nessus-manager-stemcell-jammy
+  #     - name: terraform-state-yml
+  #     run:
+  #       path: sh
+  #       args:
+  #         - -exc
+  #         - ls -R
+  - put: nessus-manager-deployment
     params:
       manifest: cg-deploy-nessus-manager/nessus-manager-deployment.yml
       vars_files:
