@@ -1,93 +1,93 @@
 jobs:
-- name: reconfigure
-  plan:
-  - get: pipeline-credentials
-    trigger: true
-  - get: nessus-manager-config
-    trigger: true
-  - set_pipeline: deploy-nessus-manager
-    file: nessus-manager-config/pipeline.yml
-    var_files:
-    - pipeline-credentials/cg-deploy-nessus-manager.yml
-- name: deploy-nessus-manager-production
+# - name: reconfigure
+#   plan:
+#   - get: pipeline-credentials
+#     trigger: true
+#   - get: nessus-manager-config
+#     trigger: true
+#   - set_pipeline: deploy-nessus-manager
+#     file: nessus-manager-config/pipeline.yml
+#     var_files:
+#     - pipeline-credentials/cg-deploy-nessus-manager.yml
+- name: deploy-nessus-manager
   plan:
   - in_parallel:
-    - get: pipeline-tasks
-    - get: nessus-manager-config
+    # - get: pipeline-tasks
+    - get: cg-deploy-nessus-manager
       trigger: true
-      passed: [reconfigure]
-    - get: common-prod
-      trigger: true
+      # passed: [reconfigure]
+    # - get: common-prod
+    #   trigger: true
     - get: cg-s3-nessus-manager-release
       trigger: true
     - get: nessus-manager-stemcell-jammy
       trigger: true
-    - get: terraform-yaml
+    - get: terraform-state-yml
       trigger: true
   - put: nessus-manager-production-deployment
     params:
-      manifest: nessus-manager-config/nessus-manager-deployment.yml
+      manifest: cg-deploy-nessus-manager/nessus-manager-deployment.yml
       vars_files:
-      - terraform-yaml/state.yml
+      - terraform-state-yml/state.yml
       releases:
       - cg-s3-nessus-manager-release/nessus-manager*.tgz
       stemcells:
       - nessus-manager-stemcell-jammy/*.tgz
-  on_failure:
-    put: slack
-    params:
-      text: |
-        :x: FAILED to deploy nessus-manager on production
-        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-      channel: ((slack-channel))
-      username: ((slack-username))
-      icon_url: ((slack-icon-url))
-  on_success:
-    put: slack
-    params:
-      text: |
-        :white_check_mark: Successfully deployed nessus-manager on production
-        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-      channel: ((slack-channel))
-      username: ((slack-username))
-      icon_url: ((slack-icon-url))
+  # on_failure:
+  #   put: slack
+  #   params:
+  #     text: |
+  #       :x: FAILED to deploy nessus-manager on production
+  #       <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+  #     channel: ((slack-channel))
+  #     username: ((slack-username))
+  #     icon_url: ((slack-icon-url))
+  # on_success:
+  #   put: slack
+  #   params:
+  #     text: |
+  #       :white_check_mark: Successfully deployed nessus-manager on production
+  #       <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+  #     channel: ((slack-channel))
+  #     username: ((slack-username))
+  #     icon_url: ((slack-icon-url))
 
 resources:
-- name: pipeline-tasks
-  type: git
-  source:
-    uri: ((pipeline-tasks-git-url))
-    branch: ((pipeline-tasks-git-branch))
-    commit_verification_keys: ((cloud-gov-pgp-keys))
+# - name: pipeline-tasks
+#   type: git
+#   source:
+#     uri: https://github.com/cloud-gov/cg-pipeline-tasks
+#     branch: main
+#     commit_verification_keys: ((commit_verification_keys))
 
-- name: common-prod
-  type: s3-iam
-  source:
-    bucket: ((private-bucket-production))
-    versioned_file: nessus-manager-decrypted.yml
-    region_name: ((aws-region))
+# - name: common-prod
+#   type: s3-iam
+#   source:
+#     bucket: ((private-bucket-production))
+#     versioned_file: nessus-manager-decrypted.yml
+#     region_name: ((aws.region))
 
-- name: pipeline-credentials
-  type: s3-iam
-  source:
-    bucket: ((concourse-varz))
-    versioned_file: ((concourse-varz-file))
-    region_name: ((aws-region))
+# - name: pipeline-credentials
+#   type: s3-iam
+#   source:
+#     bucket: ((concourse-varz))
+#     versioned_file: ((concourse-varz-file))
+#     region_name: ((aws.region))
 
 - name: cg-s3-nessus-manager-release
   type: s3-iam
   source:
-    bucket: ((s3-bosh-releases-bucket))
+    bucket: ((buckets.bosh_releases)) 
     private: true
     regexp: nessus-manager-(.*).tgz
-    region_name: ((aws-region))
+    region_name: ((aws.region))
 
-- name: nessus-manager-config
+- name: cg-deploy-nessus-manager
   type: git
   source:
     uri: https://github.com/cloud-gov/cg-deploy-nessus-manager.git
     branch: main
-    commit_verification_keys: ((cloud-gov-pgp-keys))
+    commit_verification_keys: ((commit_verification_keys))
 
 - name: nessus-manager-stemcell-jammy
   type: bosh-io-stemcell
@@ -97,29 +97,29 @@ resources:
 - name: nessus-manager-production-deployment
   type: bosh-deployment
   source:
-    target: ((bosh-target))
-    client: ((bosh-username))
-    client_secret: ((bosh-password))
-    ca_cert: ((bosh-ca))
-    deployment: ((bosh-deployment))
+    target: ((bosh_director.target))
+    client: ((bosh_director.client_id))
+    client_secret: ((bosh_director.client_secret))
+    ca_cert: ((bosh_director.ca_cert))
+    deployment: nessus-manager
 
-- name: terraform-yaml
+- name: terraform-state-yml
   type: s3-iam
   source:
-    bucket: ((tf-state-bucket-tooling))
-    versioned_file: ((tf-state-file-tooling))
-    region_name: ((aws-region))
+    bucket: ((buckets.terraform_state))
+    versioned_file: ((buckets.terraform_state_file))
+    region_name: ((aws.region))
 
-- name: slack
-  type: slack-notification
-  source:
-    url: ((slack-webhook-url))
+# - name: slack
+#   type: slack-notification
+#   source:
+#     url: ((slack_webhook_url))
 
 resource_types:
-- name: slack-notification
-  type: docker-image
-  source:
-    repository: cfcommunity/slack-notification-resource
+# - name: slack-notification
+#   type: docker-image
+#   source:
+#     repository: cfcommunity/slack-notification-resource
 
 - name: bosh-deployment
   type: docker-image
