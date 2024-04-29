@@ -22,7 +22,7 @@ stemcells:
 instance_groups:
 - name: nessus-manager
   instances: 1
-  azs: [z1]
+  azs: [z3]
   networks:
   - name: nessus-manager
     static_ips:
