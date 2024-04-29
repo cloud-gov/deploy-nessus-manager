@@ -102,7 +102,7 @@ resources:
   type: git
   source:
     uri: https://github.com/cloud-gov/cg-deploy-nessus-manager.git
-    branch: main
+    branch: f140
     commit_verification_keys: ((commit_verification_keys))
 
 - name: nessus-manager-stemcell-jammy
