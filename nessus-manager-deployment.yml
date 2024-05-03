@@ -4,8 +4,6 @@ name: nessus-manager
 releases:
 - name: nessus-manager
   version: latest
-- name: cron
-  version: latest
 
 update:
   canaries: 1
@@ -39,18 +37,7 @@ instance_groups:
         license: ((/nessus_manager.license))
         username: ((/nessus_manager.username))
         password: ((nessus_manager_password))
-  - name: cron
-    release: cron
-    properties:
-      cron:
-        entries:
-        - command: /var/vcap/jobs/nessus-manager/bin/health.sh
-          minute: '*/5'
-          hour: '*'
-          day: '*'
-          month: '*'
-          wday: '*'
-          user: root
+
 variables:
 - name: nessus_manager_password
   type: password
