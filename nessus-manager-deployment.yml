@@ -27,7 +27,7 @@ instance_groups:
   - name: nessus-manager
     static_ips:
     - ((terraform_outputs.nessus_static_ip))
-  vm_type: t3.medium.nessus.manager
+  vm_type: m6i.large.nessus.manager
   vm_extensions: [nessus-manager-lb]
   persistent_disk_type: nessus-manager
   stemcell: default
