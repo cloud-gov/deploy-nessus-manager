@@ -66,6 +66,7 @@ resources:
     bucket: ((private-bucket-production))
     versioned_file: nessus-manager-decrypted.yml
     region_name: ((aws-region))
+    endpoint: s3-fips.((aws-region)).amazonaws.com
 
 - name: pipeline-credentials
   type: s3-iam
@@ -73,6 +74,7 @@ resources:
     bucket: ((concourse-varz))
     versioned_file: ((concourse-varz-file))
     region_name: ((aws-region))
+    endpoint: s3-fips.((aws-region)).amazonaws.com
 
 - name: cg-s3-nessus-manager-release
   type: s3-iam
@@ -81,6 +83,7 @@ resources:
     private: true
     regexp: nessus-manager-(.*).tgz
     region_name: ((aws-region))
+    endpoint: s3-fips.((aws-region)).amazonaws.com
 
 - name: nessus-manager-config
   type: git
@@ -109,6 +112,7 @@ resources:
     bucket: ((tf-state-bucket-tooling))
     versioned_file: ((tf-state-file-tooling))
     region_name: ((aws-region))
+    endpoint: s3-fips.((aws-region)).amazonaws.com
 
 - name: slack
   type: slack-notification
