@@ -2,10 +2,10 @@
 name: nessus-manager-prod
 
 releases:
-- name: nessus-manager
-  version: latest
-- name: cron
-  version: latest
+  - name: nessus-manager
+    version: latest
+  - name: cron
+    version: latest
 
 update:
   canaries: 1
@@ -15,45 +15,45 @@ update:
   update_watch_time: 1000-300000
 
 stemcells:
-- alias: default
-  os: ubuntu-jammy
-  version: latest
+  - alias: default
+    os: ubuntu-jammy
+    version: latest
 
 instance_groups:
-- name: nessus-manager
-  instances: 1
-  azs: [z1]
-  networks:
   - name: nessus-manager
-    static_ips:
-    - ((terraform_outputs.nessus_static_ip))
-  vm_type: m6i.large.nessus.manager
-  vm_extensions: [nessus-manager-lb]
-  persistent_disk_type: nessus-manager
-  stemcell: default
-  migrated_from:
-  - name: nessus-manager
-    az: z1
-  jobs:
-  - name: nessus-manager
-    release: nessus-manager
-    properties:
-      nessus-manager:
-        license: ((nessus_manager_license))
-        username: ((nessus_manager_username))
-        password: ((nessus_manager_password))
-  - name: cron
-    release: cron
-    properties:
-      cron:
-        entries:
-        - command: /var/vcap/jobs/nessus-manager/bin/health.sh
-          minute: '*/5'
-          hour: '*'
-          day: '*'
-          month: '*'
-          wday: '*'
-          user: root
+    instances: 1
+    azs: [z1]
+    networks:
+      - name: nessus-manager
+        static_ips:
+          - ((terraform_outputs.nessus_static_ip))
+    vm_type: m6i.xlarge.nessus.manager
+    vm_extensions: [nessus-manager-lb]
+    persistent_disk_type: nessus-manager
+    stemcell: default
+    migrated_from:
+      - name: nessus-manager
+        az: z1
+    jobs:
+      - name: nessus-manager
+        release: nessus-manager
+        properties:
+          nessus-manager:
+            license: ((nessus_manager_license))
+            username: ((nessus_manager_username))
+            password: ((nessus_manager_password))
+      - name: cron
+        release: cron
+        properties:
+          cron:
+            entries:
+              - command: /var/vcap/jobs/nessus-manager/bin/health.sh
+                minute: "*/5"
+                hour: "*"
+                day: "*"
+                month: "*"
+                wday: "*"
+                user: root
 variables:
-- name: nessus_manager_password
-  type: password
+  - name: nessus_manager_password
+    type: password
