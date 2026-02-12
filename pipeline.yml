@@ -1,8 +1,6 @@
 jobs:
 - name: reconfigure
   plan:
-  - get: pipeline-credentials
-    trigger: true
   - get: nessus-manager-config
     trigger: true
   - set_pipeline: self
