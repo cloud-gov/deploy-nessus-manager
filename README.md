@@ -4,11 +4,8 @@ This repository is responsible for the deployment of Nessus Manager for [cloud.g
 
 It uses:
 
-- cg-nessus-manager-boshrelease
-- cg-collectd-boshrelease
-- cg-harden-boshrelease
-- cg-tripwire-boshrelease
-- newrelic-boshrelease
+- [nessus-manager-boshrelease](https://github.com/cloud-gov/nessus-manager-boshrelease)
+- [cron-boshrelease](https://github.com/cloud-gov/cron-boshrelease)
 
 ## Public domain
 
