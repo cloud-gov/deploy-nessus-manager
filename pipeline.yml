@@ -5,10 +5,8 @@ jobs:
     trigger: true
   - get: nessus-manager-config
     trigger: true
-  - set_pipeline: deploy-nessus-manager
+  - set_pipeline: self
     file: nessus-manager-config/pipeline.yml
-    var_files:
-    - pipeline-credentials/cg-deploy-nessus-manager.yml
 - name: deploy-nessus-manager-production
   plan:
   - in_parallel:
@@ -39,7 +37,7 @@ jobs:
       text: |
         :x: FAILED to deploy nessus-manager on production
         <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-      channel: ((slack-channel))
+      channel: ((slack-channel-notifications))
       username: ((slack-username))
       icon_url: ((slack-icon-url))
 
@@ -47,7 +45,7 @@ resources:
 - name: pipeline-tasks
   type: git
   source:
-    uri: ((pipeline-tasks-git-url))
+    uri: https://github.com/cloud-gov/cg-pipeline-tasks.git
     branch: ((pipeline-tasks-git-branch))
     commit_verification_keys: ((cloud-gov-pgp-keys))
 
@@ -56,13 +54,6 @@ resources:
   source:
     bucket: ((private-bucket-production))
     versioned_file: nessus-manager-decrypted.yml
-    region_name: ((aws-region))
-
-- name: pipeline-credentials
-  type: s3-iam
-  source:
-    bucket: ((concourse-varz))
-    versioned_file: ((concourse-varz-file))
     region_name: ((aws-region))
 
 - name: cg-s3-nessus-manager-release
@@ -97,7 +88,7 @@ resources:
 - name: terraform-yaml
   type: s3-iam
   source:
-    bucket: ((tf-state-bucket-tooling))
+    bucket: ((tf-state-bucket))
     versioned_file: ((tf-state-file-tooling))
     region_name: ((aws-region))
 
