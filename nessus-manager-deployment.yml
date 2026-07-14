@@ -6,6 +6,8 @@ releases:
     version: latest
   - name: cron
     version: latest
+  - name: bpm
+    version: latest
 
 update:
   canaries: 1
@@ -42,6 +44,8 @@ instance_groups:
             license: ((nessus_manager_license))
             username: ((nessus_manager_username))
             password: ((nessus_manager_password))
+      - name: bpm
+        release: bpm
       - name: cron
         release: cron
         properties:
