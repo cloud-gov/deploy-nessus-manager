@@ -3,7 +3,7 @@ name: nessus-manager-prod
 
 releases:
   - name: nessus-manager
-    version: latest
+    version: 46
   - name: cron
     version: latest
   - name: bpm
