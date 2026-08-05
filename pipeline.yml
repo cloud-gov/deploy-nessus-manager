@@ -14,7 +14,7 @@ jobs:
       passed: [reconfigure]
     - get: common-prod
       trigger: true
-    - get: cg-s3-nessus-manager-release
+    - get: cg-s3-nessus-manager-release-46
       trigger: true
     - get: nessus-manager-stemcell-jammy
       trigger: true
@@ -26,7 +26,7 @@ jobs:
       vars_files:
       - terraform-yaml/state.yml
       releases:
-      - cg-s3-nessus-manager-release/nessus-manager-46.tgz
+      - cg-s3-nessus-manager-release-46/nessus-manager-46.tgz
       stemcells:
       - nessus-manager-stemcell-jammy/*.tgz
   on_failure:
@@ -91,6 +91,14 @@ resources:
     bucket: ((s3-bosh-releases-bucket))
     private: true
     regexp: nessus-manager-(.*).tgz
+    region_name: ((aws-region))
+
+- name: cg-s3-nessus-manager-release-46
+  type: s3-iam
+  source:
+    bucket: ((s3-bosh-releases-bucket))
+    private: true
+    regexp: nessus-manager-46.tgz
     region_name: ((aws-region))
 
 - name: nessus-manager-config

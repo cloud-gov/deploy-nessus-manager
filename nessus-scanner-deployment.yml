@@ -1,5 +1,5 @@
 ---
-name: nessus-scanner-prod
+name: nessus-scanner-production
 
 releases:
   - name: nessus-manager
