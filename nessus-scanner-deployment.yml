@@ -27,6 +27,9 @@ instance_groups:
       - name: nessus-manager
     vm_type: m6i.xlarge.nessus.manager
     persistent_disk_type: nessus-manager
+    vm_extensions:
+      - 15GB_ephemeral_disk
+      - 10GB_root_disk
     stemcell: default
     jobs:
       - name: nessus-manager
