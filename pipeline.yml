@@ -114,6 +114,15 @@ resources:
     ca_cert: ((bosh-ca))
     deployment: ((bosh-deployment))
 
+- name: nessus-scanner-production-deployment
+  type: bosh-deployment
+  source:
+    target: ((bosh-target))
+    client: ((bosh-username))
+    client_secret: ((bosh-password))
+    ca_cert: ((bosh-ca))
+    deployment: ((bosh-deployment))
+
 - name: terraform-yaml
   type: s3-iam
   source:
