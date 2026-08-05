@@ -38,6 +38,37 @@ jobs:
       channel: ((slack-channel-notifications))
       username: ((slack-username))
       icon_url: ((slack-icon-url))
+- name: deploy-nessus-scanner-production
+  plan:
+  - in_parallel:
+    - get: pipeline-tasks
+    - get: nessus-manager-config
+      trigger: true
+      passed: [reconfigure]
+    - get: common-prod
+      trigger: true
+    - get: cg-s3-nessus-manager-release
+      trigger: true
+    - get: nessus-manager-stemcell-jammy
+      trigger: true
+    - get: terraform-yaml
+      trigger: true
+  - put: nessus-scanner-production-deployment
+    params:
+      manifest: nessus-manager-config/nessus-scanner-deployment.yml
+      releases:
+      - cg-s3-nessus-manager-release/nessus-manager*.tgz
+      stemcells:
+      - nessus-manager-stemcell-jammy/*.tgz
+  on_failure:
+    put: slack
+    params:
+      text: |
+        :x: FAILED to deploy nessus-scanner on production
+        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
+      channel: ((slack-channel-notifications))
+      username: ((slack-username))
+      icon_url: ((slack-icon-url))
 
 resources:
 - name: pipeline-tasks

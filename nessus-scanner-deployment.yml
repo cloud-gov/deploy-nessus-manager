@@ -1,0 +1,42 @@
+---
+name: nessus-scanner-prod
+
+releases:
+  - name: nessus-manager
+    version: latest
+  - name: bpm
+    version: latest
+
+update:
+  canaries: 1
+  canary_watch_time: 1000-300000
+  max_in_flight: 50
+  serial: false
+  update_watch_time: 1000-300000
+
+stemcells:
+  - alias: default
+    os: ubuntu-jammy
+    version: latest
+
+instance_groups:
+  - name: nessus-scanner
+    instances: 1
+    azs: [z1]
+    networks:
+      - name: nessus-manager
+    vm_type: m6i.xlarge.nessus.manager
+    persistent_disk_type: nessus-manager
+    stemcell: default
+    jobs:
+      - name: nessus-manager
+        release: nessus-manager
+        properties:
+          nessus-manager:
+            license: ((nessus_scanner_license))
+            host: ((nessus_scanner_host))
+      - name: bpm
+        release: bpm
+variables:
+  - name: nessus_manager_password
+    type: password
