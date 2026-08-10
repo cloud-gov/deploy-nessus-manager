@@ -98,7 +98,7 @@ resources:
   source:
     bucket: ((s3-bosh-releases-bucket))
     private: true
-    regexp: nessus-manager-46.tgz
+    versioned_file: nessus-manager-46.tgz
     region_name: ((aws-region))
 
 - name: nessus-manager-config
