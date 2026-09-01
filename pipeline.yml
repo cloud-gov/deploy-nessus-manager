@@ -76,32 +76,32 @@ jobs:
       - get: tenable-was
   - in_parallel:
       steps:
-      - task:
+      - task: was-platform-1
         file: nessus-manager-config/run-was.yml
         params: &was-config
           WAS_LINKING_KEY: ((was-linking-key))
           WAS_PLATFORM_URL: ((was-platform-url))
           WAS_SCANNER_NAME: internal-was-scanner-1
           WAS_SCANNER_GROUPS: internal-was
-      - task:
+      - task: was-platform-2
         file: nessus-manager-config/run-was.yml
         params:
           <<: *was-config
           WAS_SCANNER_NAME: internal-was-scanner-2
           WAS_SCANNER_GROUPS: internal-was
-      - task:
+      - task: was-platform-3
         file: nessus-manager-config/run-was.yml
         params:
           <<: *was-config
           WAS_SCANNER_NAME: internal-was-scanner-3
           WAS_SCANNER_GROUPS: internal-was
-      - task:
+      - task: was-pages-1
         file: nessus-manager-config/run-was.yml
         params:
           <<: *was-config
           WAS_SCANNER_NAME: internal-was-scanner-pages-1
           WAS_SCANNER_GROUPS: internal-was-pages
-      - task:
+      - task: was-pages-1
         file: nessus-manager-config/run-was.yml
         params:
           <<: *was-config
