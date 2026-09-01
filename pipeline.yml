@@ -74,6 +74,9 @@ jobs:
   - in_parallel:
       steps:
       - get: tenable-was
+      - get: nessus-manager-config
+        trigger: false
+        passed: [reconfigure]
   - in_parallel:
       steps:
       - task: was-platform-1
