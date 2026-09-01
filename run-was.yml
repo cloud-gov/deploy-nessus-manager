@@ -1,0 +1,23 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: tenable/was-scanner
+    tag: latest
+
+inputs:
+- name: tenable-was
+
+run:
+  path: bash
+  args:
+  - /opt/bin/scanner
+
+params:
+  WAS_LINKING_KEY:
+  WAS_PLATFORM_URL:
+  WAS_SCANNER_NAME:
+  WAS_SCANNER_GROUPS:
+  WAS_AUTO_UNLINK_ON_EXIT: true
