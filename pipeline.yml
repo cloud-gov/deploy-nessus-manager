@@ -5,39 +5,6 @@ jobs:
     trigger: true
   - set_pipeline: self
     file: nessus-manager-config/pipeline.yml
-- name: deploy-nessus-manager-production
-  plan:
-  - in_parallel:
-    - get: pipeline-tasks
-    - get: nessus-manager-config
-      trigger: true
-      passed: [reconfigure]
-    - get: common-prod
-      trigger: true
-    - get: cg-s3-nessus-manager-release-46
-      trigger: true
-    - get: nessus-manager-stemcell-jammy
-      trigger: true
-    - get: terraform-yaml
-      trigger: true
-  - put: nessus-manager-production-deployment
-    params:
-      manifest: nessus-manager-config/nessus-manager-deployment.yml
-      vars_files:
-      - terraform-yaml/state.yml
-      releases:
-      - cg-s3-nessus-manager-release-46/nessus-manager-46.tgz
-      stemcells:
-      - nessus-manager-stemcell-jammy/*.tgz
-  on_failure:
-    put: slack
-    params:
-      text: |
-        :x: FAILED to deploy nessus-manager on production
-        <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME|View build details>
-      channel: ((slack-channel-notifications))
-      username: ((slack-username))
-      icon_url: ((slack-icon-url))
 - name: deploy-nessus-scanner-production
   plan:
   - in_parallel:
@@ -134,14 +101,6 @@ resources:
     regexp: nessus-manager-(.*).tgz
     region_name: ((aws-region))
 
-- name: cg-s3-nessus-manager-release-46
-  type: s3-iam
-  source:
-    bucket: ((s3-bosh-releases-bucket))
-    private: true
-    versioned_file: nessus-manager-46.tgz
-    region_name: ((aws-region))
-
 - name: nessus-manager-config
   type: git
   source:
@@ -153,15 +112,6 @@ resources:
   type: bosh-io-stemcell
   source:
     name: bosh-aws-xen-hvm-ubuntu-jammy-go_agent
-
-- name: nessus-manager-production-deployment
-  type: bosh-deployment
-  source:
-    target: ((bosh-target))
-    client: ((bosh-username))
-    client_secret: ((bosh-password))
-    ca_cert: ((bosh-ca))
-    deployment: ((bosh-deployment))
 
 - name: nessus-scanner-production-deployment
   type: bosh-deployment
