@@ -71,7 +71,7 @@ jobs:
           <<: *was-config
           WAS_SCANNER_NAME: internal-was-scanner-pages-1
           WAS_SCANNER_GROUPS: internal-was-pages
-      - task: was-pages-1
+      - task: was-pages-2
         file: nessus-manager-config/run-was.yml
         params:
           <<: *was-config
