@@ -26,6 +26,7 @@ instance_groups:
     networks:
       - name: nessus-manager
     vm_type: m6i.xlarge.nessus.manager
+    persistent_disk_type: 30GB
     vm_extensions:
       - 15GB_ephemeral_disk
       - 10GB_root_disk
